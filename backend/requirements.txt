@@ -1,0 +1,5 @@
+fastapi
+influxdb-client
+uvicorn
+python-dotenv
+-r auth/requirements.txt

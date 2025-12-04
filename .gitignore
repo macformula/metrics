@@ -1,0 +1,32 @@
+*.env*
+!.env.example
+
+
+.DS_STORE
+.vscode
+
+env
+venv
+.env*
+.venv*
+__pycache__/
+
+# Busmaster dbf files. If you need one, convert it from a dbc
+*.dbf
+
+.clangd
+.cache
+*.log
+
+.pio
+generated/
+
+# Let's Encrypt certificates (generated at runtime)
+scripts/TSDB/nginx/certbot/conf/accounts/
+scripts/TSDB/nginx/certbot/conf/live/
+scripts/TSDB/nginx/certbot/conf/archive/
+scripts/TSDB/nginx/certbot/conf/renewal/
+scripts/TSDB/nginx/certbot/www/
+
+# SQLite database
+scripts/TSDB/backend/auth/data/

@@ -1,0 +1,90 @@
+version: "3.8"
+
+services:
+  influxdb:
+    build: .
+    container_name: racecar-influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-storage:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password123
+      - DOCKER_INFLUXDB_INIT_ORG=racecar
+      - DOCKER_INFLUXDB_INIT_BUCKET=telemetry
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: racecar-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana.ini:/etc/grafana/grafana.ini
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: racecar-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
+      - INFLUX_ORG=${INFLUX_ORG}
+      - INFLUX_URL=${INFLUX_URL}
+      - INFLUX_BUCKET=${INFLUX_BUCKET}
+      - SECRET_KEY=${SECRET_KEY:-test}
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+    command: uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+
+  auth:
+    build: ./backend/auth
+    container_name: racecar-auth
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend/auth/data:/app/data
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-test}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-test}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: racecar-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_AUTH_URL=http://localhost:8001
+    depends_on:
+      - backend
+      - auth
+    restart: unless-stopped
+
+volumes:
+  influxdb-storage:
+  influxdb-config:
+  grafana-storage:
