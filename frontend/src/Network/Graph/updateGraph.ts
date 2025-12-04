@@ -12,8 +12,11 @@ export const writeGraphPoint = async ({ timestamp, value }: GraphData) => {
     throw new Error("Not authenticated. Please login first.");
   }
 
+  const API_URL = import.meta.env.VITE_API_URL || '';
+  const url = API_URL ? `${API_URL}/write-graph` : '/api/write-graph';
+
   try {
-    const response = await fetch("/api/write-graph", {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

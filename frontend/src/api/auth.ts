@@ -1,5 +1,5 @@
 // Auth API utilities
-const AUTH_API_URL = '/auth';
+const AUTH_API_URL = import.meta.env.VITE_AUTH_URL || '/auth';
 
 export interface AuthResponse {
   access_token: string;

@@ -3,7 +3,7 @@ from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()  # Commented out - Docker provides env vars
 token = os.environ.get("INFLUXDB_TOKEN")
 org = os.environ.get("INFLUX_ORG")
 url = os.environ.get("INFLUX_URL")
