@@ -1,5 +1,4 @@
 *.env*
-!.env.example
 
 
 .DS_STORE
@@ -13,6 +12,7 @@ __pycache__/
 
 # Busmaster dbf files. If you need one, convert it from a dbc
 *.dbf
+!.env.example
 
 .clangd
 .cache
